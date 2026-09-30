@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Virtual Fit — Study Notes &amp; Viva Handout</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; color: #1a1d21; font-size: 10.5pt; line-height: 1.5; }
+  h1 { font-size: 17pt; color: #0b0c0e; border-left: 5px solid #79a80b; padding-left: 10px; margin: 22px 0 10px; page-break-after: avoid; }
+  h1:first-of-type { margin-top: 0; }
+  h2 { font-size: 12.5pt; margin: 14px 0 6px; color: #2c4a06; page-break-after: avoid; }
+  h3 { font-size: 11pt; margin: 10px 0 4px; page-break-after: avoid; }
+  p { margin-bottom: 6px; }
+  ul, ol { margin: 4px 0 8px 20px; }
+  li { margin-bottom: 3px; }
+  b { color: #000; }
+  code { font-family: Consolas, "Courier New", monospace; background: #f1f3f5; border: 1px solid #e0e3e7; border-radius: 3px; padding: 0 4px; font-size: 9.5pt; color: #343a40; }
+  pre { background: #f6f8fa; border: 1px solid #e0e3e7; border-radius: 6px; padding: 10px 12px; font-family: Consolas, monospace; font-size: 9pt; line-height: 1.45; overflow: hidden; page-break-inside: avoid; margin: 6px 0 10px; }
+  pre b { color: #2c4a06; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 12px; page-break-inside: avoid; }
+  th { background: #eef2e3; text-align: left; font-size: 9.5pt; }
+  th, td { border: 1px solid #d7dce2; padding: 4px 8px; font-size: 9.5pt; vertical-align: top; }
+  .cover { border: 2px solid #79a80b; border-radius: 10px; padding: 26px 30px; margin-bottom: 18px; background: #fbfdf6; }
+  .cover h1 { border: none; padding: 0; font-size: 26pt; margin: 0 0 4px; }
+  .cover .tag { font-size: 13pt; color: #4a5560; margin-bottom: 14px; }
+  .cover .meta { font-size: 10.5pt; color: #333; line-height: 1.7; }
+  .qa { margin-bottom: 9px; page-break-inside: avoid; }
+  .qa .q { font-weight: 700; color: #1f3d00; margin-bottom: 2px; }
+  .qa .a { color: #2a2f36; }
+  .callout { background: #f4f9ea; border: 1px solid #cfe3a8; border-radius: 8px; padding: 10px 14px; margin: 8px 0 12px; page-break-inside: avoid; }
+  .warn { background: #fdf6ec; border: 1px solid #ecd9b5; border-radius: 8px; padding: 10px 14px; margin: 8px 0 12px; page-break-inside: avoid; }
+  .kw { color: #79a80b; font-weight: 700; }
+  .small { font-size: 9pt; color: #5a6470; }
+  .toc { columns: 2; column-gap: 24px; font-size: 10pt; margin: 8px 0; }
+  .toc li { margin-bottom: 2px; }
+  .flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 12px; page-break-inside: avoid; }
+  .flow .n { background: #2c4a06; color: #fff; border-radius: 6px; padding: 4px 10px; font-size: 9pt; font-weight: 600; }
+  .flow .arrow { color: #79a80b; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER ===================== -->
+<div class="cover">
+  <h1>Virtual Fit</h1>
+  <p class="tag">Try it on before you buy it — browser-based, body-aware virtual fitting room.<br>Study notes &amp; viva preparation handout</p>
+  <p class="meta">
+    <b>Student:</b> Rukaiya Sultana &nbsp;·&nbsp; rukaiyam70@gmail.com<br>
+    <b>Live app:</b> https://vfit.rukaiya.tech &nbsp;·&nbsp; <b>Source:</b> github.com/Rukaiya-Sultana/virtual-fit<br>
+    <b>Stack:</b> Next.js 14 · React 18 · TypeScript · Prisma · Supabase (PostgreSQL) · MediaPipe WASM · Tailwind · Docker / Dokploy / AWS Lightsail
+  </p>
+</div>
+
+<p><b>How to use this handout:</b> Sections 1–10 are the content of the project (what it is, how every part works, and why it was built that way). Section 11 is the viva bank — 50+ likely questions grouped by topic, each with a spoken-style answer. Section 12 is a suggested live-demo script and a numbers cheat sheet.</p>
+
+<ul class="toc">
+  <li>1. Project at a glance</li>
+  <li>2. Tech stack &amp; why each choice</li>
+  <li>3. Architecture &amp; request lifecycle</li>
+  <li>4. Database design</li>
+  <li>5. The fitting engine (core algorithm)</li>
+  <li>6. Authentication &amp; sessions</li>
+  <li>7. AI fashion assistant</li>
+  <li>8. Security measures</li>
+  <li>9. API reference</li>
+  <li>10. Deployment &amp; DevOps</li>
+  <li>11. Viva question bank (50+)</li>
+  <li>12. Demo script &amp; cheat sheet</li>
+</ul>
+
+<!-- ===================== 1 ===================== -->
+<h1>1 · Project at a glance</h1>
+<p><b>Elevator pitch (30 seconds):</b> "Virtual Fit is a demo clothing store with a real virtual fitting room. The shopper uploads one photo; a pose-detection model runs <b>entirely inside their browser</b> and finds 33 body landmarks; garments from the catalog are then fitted onto the detected torso geometrically, in about a second. An AI assistant takes plain-language commands like 'make it slightly oversized'. Around the fitting room there is a full storefront — accounts, cart, checkout, orders — plus an admin panel. The heavy computation happens on the client, so the whole platform runs on a tiny $5 VPS and photos never leave the device for processing."</p>
+
+<h2>What is real vs. simulated</h2>
+<ul>
+  <li><b>Real:</b> registration/login with hashed passwords, sessions, catalog CRUD, cart, checkout with stock checks, orders + status workflow, admin panel (garments, categories, orders, users), pose detection, fitting engine, AI assistant.</li>
+  <li><b>Simulated by design:</b> payment and shipping — checkout creates a real order record but no money moves. Clearly labelled as a demo store.</li>
+</ul>
+
+<h2>Key numbers (worth memorising)</h2>
+<table>
+  <tr><th>Metric</th><th>Value</th></tr>
+  <tr><td>Pose landmarks detected</td><td>33 (MediaPipe Pose Landmarker Lite, float16, ~6 MB, self-hosted)</td></tr>
+  <tr><td>Garment anchors per product</td><td>8 coordinates (left/right shoulder, left/right hem — x,y each) + width/height + length factor</td></tr>
+  <tr><td>Database</td><td>PostgreSQL (Supabase) · 5 tables · Prisma ORM</td></tr>
+  <tr><td>Demo catalog</td><td>15 garments across 6 categories, procedurally drawn as SVG → rasterised to WebP with sharp</td></tr>
+  <tr><td>First-load JS</td><td>~87 kB shared, ~100–107 kB per route</td></tr>
+  <tr><td>Session cookie lifetime</td><td>Customer 14 days · Admin 8 hours</td></tr>
+  <tr><td>Password hashing</td><td>bcrypt, cost factor 12</td></tr>
+  <tr><td>Upload limits</td><td>JPEG/PNG/WebP · ≤10 MB · downscaled to ≤1400 px client-side</td></tr>
+  <tr><td>Retention</td><td>Temp 1 h · uploads 24 h · saved results 24 h (sweeper cleans every 15 min)</td></tr>
+  <tr><td>Rate limits</td><td>Admin login 8/min · orders 10/min · AI 12/min · uploads 20/min</td></tr>
+  <tr><td>Runtime cost</td><td>~$5–10/month VPS (512 MB is enough) + Supabase free tier + optional free LLM key</td></tr>
+</table>
+
+<!-- ===================== 2 ===================== -->
+<h1>2 · Tech stack &amp; why each choice</h1>
+<p>Examiners frequently ask "why technology X and not Y". This is the justification table.</p>
+<table>
+  <tr><th>Technology</th><th>Role</th><th>Why this, not the alternative</th></tr>
+  <tr><td><b>Next.js 14</b> (App Router)</td><td>Full-stack framework: pages + API routes in one codebase</td><td>Server components render catalog pages close to the data; API routes (<code>app/api/*</code>) keep the backend in the same repo and language. A separate Express server would mean two deployments and duplicated types. <code>output: "standalone"</code> produces a minimal container image.</td></tr>
+  <tr><td><b>React 18</b></td><td>UI</td><td>Server components for data pages; client components only where interactivity is needed (fitting studio, cart, admin).</td></tr>
+  <tr><td><b>TypeScript</b></td><td>Type safety end-to-end</td><td>Shared types (Garment, Adjustments, BodyLandmarks) flow from DB schema through API to canvas engine — refactors are caught at compile time.</td></tr>
+  <tr><td><b>Prisma</b></td><td>ORM / query builder</td><td>Type-safe queries generated from the schema; <code>db push</code> syncs schema to Supabase; switching SQLite→Postgres required <b>zero query-code changes</b>, only the datasource provider. Raw SQL would lose type safety; a heavier ORM (TypeORM) adds complexity without benefit here.</td></tr>
+  <tr><td><b>Supabase (PostgreSQL)</b></td><td>Managed database</td><td>Started as SQLite for zero-setup local dev; moved to managed Postgres for concurrency, backups, and a dashboard. Connection via Supabase's <b>session pooler</b> (port 5432) — compatible with DDL and Prisma.</td></tr>
+  <tr><td><b>MediaPipe Tasks Vision</b></td><td>Pose detection in-browser</td><td>Runs as WebAssembly on the client's CPU — free, offline, private. Cloud vision APIs would cost money per call and require uploading photos, violating the privacy goal. Model + WASM are <b>self-hosted in /public</b> (SIMD and no-SIMD builds), so there is no CDN dependency.</td></tr>
+  <tr><td><b>Tailwind CSS</b></td><td>Styling</td><td>Utility classes keep styling colocated; responsive variants (<code>lg:</code>, <code>sm:</code>) handled the mobile layout quickly.</td></tr>
+  <tr><td><b>sharp</b></td><td>Image pipeline</td><td>Rasterises the SVG garments to WebP (processed + thumbnail) at seed time; also used server-side to re-encode uploads safely.</td></tr>
+  <tr><td><b>Zod</b></td><td>Runtime validation</td><td>Every API route parses its input through a Zod schema — bad requests die at the boundary with a clean message, never reach Prisma.</td></tr>
+  <tr><td><b>bcryptjs</b></td><td>Password hashing</td><td>bcrypt with cost 12 (~250 ms/hash) — deliberately slow against brute force. Never stored or logged in plaintext.</td></tr>
+  <tr><td><b>OpenRouter</b> (optional)</td><td>LLM provider</td><td>Free-tier models; if the key is missing the assistant falls back to a local rules engine, so the feature never breaks in a demo.</td></tr>
+  <tr><td><b>Docker + Dokploy + Lightsail</b></td><td>Deployment</td><td>Multi-stage Dockerfile → reproducible builds; Dokploy (self-hosted PaaS) pulls from GitHub, terminates TLS with Let's Encrypt, and redeploys on push.</td></tr>
+</table>
+
+<!-- ===================== 3 ===================== -->
+<h1>3 · Architecture &amp; request lifecycle</h1>
+
+<h2>3.1 The two halves of the system</h2>
+<p>The app deliberately splits work into <b>client-heavy ML</b> and <b>server-light commerce</b>:</p>
+<pre>
+┌─────────────── BROWSER (the fitting room) ───────────────┐
+│ photo → downscale/WebP → MediaPipe WASM pose (33 pts)    │
+│   → anchor mapping → geometric transform → Canvas 2D     │
+│   → fine-tune sliders · compare · download               │
+│ (the photo itself NEVER goes to the server for this)     │
+└──────────────────────────┬───────────────────────────────┘
+                           │ fetch() JSON only
+┌──────────────────────────▼───────────────────────────────┐
+│ NEXT.JS SERVER (standalone, in Docker)                   │
+│ /api/auth /api/orders /api/garments /api/ai /api/assets  │
+│ Zod validation → Prisma → Supabase Postgres              │
+│ File storage volume (/data/storage) for garment assets,  │
+│ uploads and saved results (TTL-swept)                    │
+└──────────────────────────────────────────────────────────┘
+</pre>
+
+<h2>3.2 Request lifecycle (example: placing an order)</h2>
+<div class="flow">
+  <span class="n">Cart (client)</span><span class="arrow">→</span>
+  <span class="n">POST /api/orders</span><span class="arrow">→</span>
+  <span class="n">currentUser() reads signed cookie</span><span class="arrow">→</span>
+  <span class="n">Zod parses items</span><span class="arrow">→</span>
+  <span class="n">Prisma $transaction: stock decrement + order create</span><span class="arrow">→</span>
+  <span class="n">JSON orderId</span>
+</div>
+<ul>
+  <li>Stock is decremented with an <b>optimistic guard</b>: <code>updateMany({ where: { id, stock: { gte: qty } } })</code> — if another request consumed the stock in the same moment, <code>update.count !== 1</code>, the transaction aborts, and the client gets a 409 "stock changed" instead of an oversell.</li>
+  <li>Order items are created inside the same transaction, so order + decrements succeed or fail together.</li>
+</ul>
+
+<h2>3.3 Rendering strategy</h2>
+<ul>
+  <li>Pages that read the database or cookies use <code>export const dynamic = "force-dynamic"</code> (home, product, account) or are dynamic by nature (cookies in <code>currentUser()</code>) — always rendered per-request, never stale.</li>
+  <li>Pure pages (login, register, checkout shell) are static; the fitting studio is a client component.</li>
+  <li>Static assets (pose model, WASM, garment thumbnails via <code>/api/assets/*</code>) are cacheable; a global headers() block sets <code>X-Content-Type-Options</code>, <code>X-Frame-Options: SAMEORIGIN</code>, <code>Referrer-Policy</code>.</li>
+</ul>
+
+<h2>3.4 Codebase layout (what lives where)</h2>
+<pre>
+src/app/            pages (/, /tryon, /product/[id], /account, /admin, ...)
+src/app/api/        REST endpoints (auth, orders, garments, ai, assets, admin, health)
+src/lib/prisma.ts   singleton PrismaClient (global in dev to survive HMR)
+src/lib/auth.ts     session issue/verify, cookie options
+src/lib/admin-auth.ts   admin cookie + password check
+src/lib/fitting/    the geometry engine: anchors, transforms, canvas render
+src/lib/pose/       MediaPipe loader + landmark post-processing
+src/lib/ai/         assistant: LLM call, JSON schema, local rules engine, apply()
+src/lib/storage/    filesystem storage adapter (STORAGE_ROOT)
+prisma/schema.prisma  5 models
+scripts/            seed, catalog import, e2e flows, cleanup, verification
+Dockerfile          multi-stage build (deps → assets → builder → runner)
+</pre>
+
+<!-- ===================== 4 ===================== -->
+<h1>4 · Database design</h1>
+
+<h2>4.1 Schema (Prisma → PostgreSQL)</h2>
+<pre>
+User        id (cuid PK), name, email <b>UNIQUE</b>, passwordHash, role (default CUSTOMER), createdAt
+Category    id PK, name <b>UNIQUE</b>
+Product     id PK (slug e.g. "blue-hoodie"), name, description, price, stock,
+            categoryId → Category (Restrict), color, colorHex, fit, sleeve,
+            styleJson, occasionsJson, sizesJson (TEXT columns storing JSON arrays),
+            formality (1-5), lengthFactor, assetPath, originalPath, thumbnailPath,
+            leftShoulderX/Y, rightShoulderX/Y, leftHemX/Y, rightHemX/Y  <b>← anchor geometry</b>,
+            width, height, badge, createdAt, updatedAt
+Order       id PK, userId → User (Restrict), total, status (default PENDING), createdAt
+OrderItem   id PK, orderId → Order (<b>Cascade</b>), productId → Product (Restrict),
+            quantity, size, price (snapshot at purchase time)
+</pre>
+
+<h2>4.2 Design decisions examiners probe</h2>
+<ul>
+  <li><b>Why JSON strings in TEXT columns</b> (styleJson, occasionsJson, sizesJson)? These are display-only attributes never filtered or joined on in SQL — a dedicated table per attribute would add joins for zero query benefit. Anything we <i>do</i> query (price, category, formality) is a proper column. This is intentional denormalisation with a boundary.</li>
+  <li><b>Why price snapshot on OrderItem?</b> If the catalog price changes later, historical orders must still show what the customer actually paid. We copy price at checkout — classic order-line pattern.</li>
+  <li><b>onDelete behaviours:</b> OrderItem→Order is <b>Cascade</b> (deleting an order removes its lines — used by the admin delete feature). Order→User and OrderItem→Product are <b>Restrict</b>: you can't delete a user or product that orders reference; the admin user-delete therefore deletes the user's orders first in one transaction.</li>
+  <li><b>Order status workflow:</b> PENDING → CONFIRMED → PROCESSING → SHIPPED → DELIVERED, plus CANCELLED. DELIVERED and CANCELLED are terminal — the PATCH endpoint rejects further changes with 409.</li>
+  <li><b>Stock integrity:</b> never trust the client — quantity validated 1–10, size checked against the product's size list, stock decremented conditionally inside a transaction (see 3.2).</li>
+  <li><b>cuid primary keys:</b> collision-resistant, sortable, URL-safe — better than exposing sequential ints; Product additionally uses a human slug as PK.</li>
+</ul>
+
+<h2>4.3 Prisma usage specifics</h2>
+<ul>
+  <li><b>Client singleton</b> (<code>src/lib/prisma.ts</code>): one PrismaClient per process, cached on <code>globalThis</code> in dev so Next.js hot-reload doesn't open endless connections.</li>
+  <li><b>Schema sync strategy:</b> <code>prisma db push</code> (stateless diff) instead of migration files — right-sized for a solo project; the container runs it idempotently at boot.</li>
+  <li><b>Connection string:</b> Supabase <b>session pooler</b> <code>…pooler.supabase.com:5432/postgres</code> — works for both DDL and runtime; the transaction pooler (6543) would require pgbouncer workarounds for schema sync.</li>
+  <li><b>Seed pipeline:</b> <code>seed-garments.mjs</code> draws SVG garments → sharp rasterises to WebP + catalog.json (with anchors derived from the SVG coordinates) → <code>migrate-catalog-to-db.mjs</code> upserts into Postgres. Safe to re-run (upserts, IDs stable).</li>
+</ul>
+
+<!-- ===================== 5 ===================== -->
+<h1>5 · The fitting engine (core algorithm)</h1>
+<p>This is the heart of the project — expect detailed questions here.</p>
+
+<h2>5.1 Step 1 — Body detection (client, WASM)</h2>
+<ul>
+  <li>Photo is downscaled to ≤1400 px and re-encoded to WebP <b>in the browser</b> before anything else — small payloads, fast decode.</li>
+  <li>MediaPipe <b>Pose Landmarker Lite</b> runs on WebAssembly and returns <b>33 landmarks</b> with x, y (normalised 0–1) and <b>visibility scores</b>.</li>
+  <li><b>Quality gating:</b> shoulders must be clearly visible; if hips are below a 0.5 visibility threshold the engine <i>imputes them from shoulder span</i> (standard body proportion) and the UI honestly labels the result "Hips estimated" — better to proceed with a flag than to fail.</li>
+  <li>Failures are user-actionable: "face the camera", "shoulders inside frame" — the detection error carries a hint string, not a stack trace.</li>
+</ul>
+
+<h2>5.2 Step 2 — Garment anchor mapping</h2>
+<ul>
+  <li>Every product row stores its <b>own anchor coordinates</b> (normalised): left/right shoulder and left/right hem points — captured from the garment's original drawing geometry, so the mapping is pixel-accurate rather than guessed.</li>
+  <li>The engine computes the user's <b>shoulder span</b> and <b>torso length</b> from the landmarks, then solves a transform that maps the garment's anchor quad onto the detected body quad: scale from shoulder ratio, vertical stretch from a per-garment <code>lengthFactor</code>, plus skew/rotation for perspective.</li>
+</ul>
+
+<h2>5.3 Step 3 — Interactive composite</h2>
+<ul>
+  <li>Rendered on a <b>Canvas 2D</b> with high-quality image smoothing; the garment image is drawn transformed over the photo.</li>
+  <li>Fine-tune controls adjust scale, X/Y offset, length and rotation — a typed <code>Adjustments</code> object applied in the render loop; pointer drag pans (touch-action disabled on the canvas so mobile drags don't scroll the page).</li>
+  <li><b>Compare mode</b> re-renders two garments on the same body side by side; before/after toggles the raw photo; a skeleton overlay can visualise the landmarks for the demo.</li>
+</ul>
+
+<div class="callout"><b>Why geometric, not generative (the #1 viva question):</b> photorealistic virtual try-on needs diffusion models on GPUs and uploads the user's photo to a server — incompatible with privacy-first, $0-inference and offline goals. Anchor geometry is deterministic, instant (~1 s), explainable math (no black box), works on any CPU via WASM, and the trade-off (no fabric drape simulation) is stated openly.</div>
+
+<h2>5.4 Why Canvas 2D and not WebGL/three.js</h2>
+<p>We are compositing one transformed bitmap over one photo — a 2D affine-ish draw. WebGL would add a 3D engine dependency (~hundreds of kB) for zero visual gain here. If we later simulate drape or lighting, WebGL/WebGPU becomes the right tool.</p>
+
+<!-- ===================== 6 ===================== -->
+<h1>6 · Authentication &amp; sessions</h1>
+
+<h2>6.1 Register / login flow</h2>
+<ul>
+  <li>Zod validates input (email format, password ≥ 8 chars).</li>
+  <li>Duplicate email → 409; wrong credentials → a <b>generic 401 "Email or password is incorrect"</b> (never reveal which field was wrong — prevents account enumeration).</li>
+  <li>Password compared with <code>bcrypt.compare</code>; login adds a small constant delay on failure to blunt timing/brute-force, plus rate limiting (8 admin attempts/min).</li>
+</ul>
+
+<h2>6.2 Stateless signed-cookie sessions</h2>
+<pre>
+token = base64url(JSON {id, role, exp}) + "." + HMAC-SHA256(payload, AUTH_SECRET)
+</pre>
+<ul>
+  <li>Verification: recompute the HMAC and compare with <b>timingSafeEqual</b>, check expiry, then load the user from Postgres (so deactivated users vanish even with a valid token).</li>
+  <li><b>Why stateless?</b> No session table, no extra DB read per static check; the only DB hit is the user fetch we want anyway. A database-session store would be the choice if we needed instant server-side revocation for many sessions.</li>
+  <li>Cookie flags: <code>httpOnly</code> (JS can't read it → XSS can't steal it), <code>SameSite=Lax</code> (blocks cross-site CSRF sends for POST), <code>path=/</code>, 14-day max-age.</li>
+  <li><b>Secure flag is protocol-aware:</b> set only when the request actually arrived over HTTPS (<code>x-forwarded-proto</code> behind the proxy). Hard-coding Secure broke login on plain HTTP during development — browsers silently drop Secure cookies on http:// — a real bug found and fixed, great viva story.</li>
+</ul>
+
+<h2>6.3 Admin authentication</h2>
+<ul>
+  <li>Separate, minimal scheme: single admin password from env (<code>ADMIN_PASSWORD</code>, ≥ 8 chars enforced) → the cookie stores only an <b>HMAC derived from the password</b>, never the password itself; 8-hour expiry.</li>
+  <li>Every <code>/api/admin/*</code> route calls <code>isAdminRequest()</code> first → 401 otherwise. Admin features: garment upload, categories CRUD, order status + delete, user list + delete (which cascades their orders).</li>
+</ul>
+
+<!-- ===================== 7 ===================== -->
+<h1>7 · AI fashion assistant</h1>
+<h2>7.1 Dual-engine design</h2>
+<ul>
+  <li><b>Request:</b> message + last 6 chat turns (content clipped to 300 chars) + currently selected garment → <code>POST /api/ai</code> with a 25 s abort timeout and rate limit (12/min per client).</li>
+  <li><b>LLM path (if OPENROUTER_API_KEY set):</b> the model is prompted to answer with a strict JSON command object. The response is parsed and <b>validated with Zod</b> against a fixed action vocabulary — <code>adjust_fit</code>, <code>select_garment</code>, <code>recommend</code>, <code>compare</code>, <code>explain</code>.</li>
+  <li><b>Local rules engine (fallback, always available):</b> deterministic intent matching — "bigger/oversized" widens scale, "shorter" cuts length, colours and occasions map to catalog filters. No network, no key, instant. The health endpoint reports which engine is active.</li>
+  <li><b>Apply pipeline:</b> commands go through one typed <code>apply()</code> function that clamps values and updates the studio state; the UI then shows an "Applied: …" note. <b>The model can only trigger actions the UI already allows</b> — it cannot inject HTML, touch the DOM, or exceed adjustment limits.</li>
+</ul>
+<div class="warn"><b>Privacy note for viva:</b> the assistant operates on <b>catalog data and chat text only</b> — the user's photo never goes to the LLM.</div>
+
+<!-- ===================== 8 ===================== -->
+<h1>8 · Security measures (checklist)</h1>
+<table>
+  <tr><th>Area</th><th>Measure</th></tr>
+  <tr><td>Passwords</td><td>bcrypt cost 12; no plaintext ever stored or logged</td></tr>
+  <tr><td>Sessions</td><td>HMAC-SHA256 signed, httpOnly, SameSite=Lax, protocol-aware Secure, timing-safe comparison</td></tr>
+  <tr><td>Input</td><td>Zod schema validation on <b>every</b> API route (body size and field limits included)</td></tr>
+  <tr><td>Abuse</td><td>In-memory sliding rate-limit buckets keyed per IP+route (login 8, orders 10, AI 12, uploads 20 per minute)</td></tr>
+  <tr><td>Uploads</td><td>MIME whitelist (JPEG/PNG/WebP), 10 MB cap, client-side downscale, server re-encode with sharp, max pixel dimension</td></tr>
+  <tr><td>File serving</td><td><code>/api/assets/[...path]</code> resolves and <b>whitelists</b> paths under STORAGE_ROOT — no path traversal; content types set explicitly</td></tr>
+  <tr><td>Headers</td><td>nosniff, X-Frame-Options SAMEORIGIN, strict Referrer-Policy globally</td></tr>
+  <tr><td>Secrets</td><td>All in env vars (.env gitignored, verified not in repo history); admin password minimum length enforced at runtime</td></tr>
+  <tr><td>Data retention</td><td>Temp 1 h / uploads 24 h / results 24 h TTLs with a background sweeper (≤ every 15 min) — stored surface stays small</td></tr>
+  <tr><td>Camera/permissions</td><td>Only requested on user action; graceful messaging on HTTP where browsers block getUserMedia</td></tr>
+</table>
+
+<!-- ===================== 9 ===================== -->
+<h1>9 · API reference</h1>
+<table>
+  <tr><th>Endpoint</th><th>Method</th><th>Auth</th><th>Purpose</th></tr>
+  <tr><td><code>/api/health</code></td><td>GET</td><td>—</td><td>Status: storage writable, garment count, AI engine mode (used by Docker healthcheck)</td></tr>
+  <tr><td><code>/api/auth/register</code></td><td>POST</td><td>—</td><td>Create account (Zod + bcrypt) and set session cookie</td></tr>
+  <tr><td><code>/api/auth/login</code></td><td>POST</td><td>—</td><td>Verify credentials, set session cookie</td></tr>
+  <tr><td><code>/api/auth/logout</code></td><td>POST</td><td>cookie</td><td>Clear session cookie</td></tr>
+  <tr><td><code>/api/auth/me</code></td><td>GET</td><td>cookie</td><td>Current user (drives the navbar state)</td></tr>
+  <tr><td><code>/api/garments</code></td><td>GET</td><td>—</td><td>Catalog listing for shop + fitting room</td></tr>
+  <tr><td><code>/api/orders</code></td><td>POST</td><td>cookie</td><td>Checkout: validate items/sizes/stock → transaction → create order</td></tr>
+  <tr><td><code>/api/orders/[id]</code></td><td>GET</td><td>cookie</td><td>One order (ownership enforced)</td></tr>
+  <tr><td><code>/api/sessions/[id]/photo|results</code></td><td>POST/GET</td><td>session</td><td>Opt-in saved try-on results (TTL)</td></tr>
+  <tr><td><code>/api/assets/[...path]</code></td><td>GET</td><td>—</td><td>Whitelisted asset serving from the storage volume</td></tr>
+  <tr><td><code>/api/ai</code></td><td>POST</td><td>—</td><td>Assistant: LLM or local rules; Zod-validated commands</td></tr>
+  <tr><td><code>/api/admin/login</code></td><td>POST/DELETE</td><td>password</td><td>Admin session cookie in/out (rate limited)</td></tr>
+  <tr><td><code>/api/admin/session</code></td><td>GET</td><td>admin</td><td>Admin auth probe</td></tr>
+  <tr><td><code>/api/admin/garments</code></td><td>POST</td><td>admin</td><td>Upload garment image + metadata (sharp re-encode)</td></tr>
+  <tr><td><code>/api/admin/categories</code></td><td>GET/POST/DELETE</td><td>admin</td><td>Categories (delete blocked while products exist)</td></tr>
+  <tr><td><code>/api/admin/orders</code></td><td>GET</td><td>admin</td><td>All orders with user + items</td></tr>
+  <tr><td><code>/api/admin/orders/[id]</code></td><td>PATCH/DELETE</td><td>admin</td><td>Change status (terminal states 409) / delete order (items cascade)</td></tr>
+  <tr><td><code>/api/admin/users</code></td><td>GET</td><td>admin</td><td>Users with order counts</td></tr>
+  <tr><td><code>/api/admin/users/[id]</code></td><td>DELETE</td><td>admin</td><td>Delete user + their orders in one transaction</td></tr>
+</table>
+
+<!-- ===================== 10 ===================== -->
+<h1>10 · Deployment &amp; DevOps</h1>
+<h2>10.1 The Docker image (multi-stage)</h2>
+<pre>
+deps     npm ci (postinstall copies MediaPipe WASM + downloads the pose model)
+assets   prisma generate + draw demo garments (SVG→WebP) + catalog.json
+builder  prisma generate + next build   <b>(no DB needed at build: all DB pages are dynamic)</b>
+runner   node:20-alpine + standalone server.js + prisma CLI for boot-time db push
+</pre>
+<ul>
+  <li><b>Standalone output</b> ships only traced production node_modules — small image, fast cold start (server ready in ~40 ms).</li>
+  <li><b>Entrypoint self-heals:</b> validates DATABASE_URL → seeds the demo garment assets into the persistent volume on first boot → <code>prisma db push</code> (idempotent schema sync) → imports the demo catalog only if the product table is empty → starts the server. A broken/empty database recovers automatically.</li>
+  <li><b>Persistent state:</b> only <code>/data</code> (garment assets, uploads, results). The database is fully managed by Supabase — daily backups, no volume coupling.</li>
+  <li>Container healthcheck hits <code>/api/health</code>.</li>
+</ul>
+<h2>10.2 The chain to production</h2>
+<p>GitHub push → <b>Dokploy</b> (on an AWS Lightsail VPS) builds the Dockerfile → runs it behind its Traefik proxy → <b>Let's Encrypt</b> certificate for HTTPS → <b>Cloudflare DNS</b> (DNS-only) points the domain. HTTPS matters twice: browsers block the live-camera API on plain HTTP, and cookies/camera/security all become strict automatically when the request is secure (the app detects this per-request).</p>
+
+<!-- ===================== 11 ===================== -->
+<h1>11 · Viva question bank</h1>
+<p class="small">Answers written the way you'd say them. Practise the bolded keywords.</p>
+
+<h2>A · Architecture &amp; design decisions</h2>
+<div class="qa"><p class="q">A1. Explain your overall architecture in one minute.</p><p class="a">It's a Next.js full-stack app split into two halves. The fitting room is client-heavy: MediaPipe pose detection runs as WebAssembly in the browser, and the garment is composited on a canvas with a geometric transform — so the server never processes photos. The commerce half is server-light: REST API routes validate with Zod and talk to Supabase Postgres through Prisma. The whole thing runs in a Docker container on a small VPS, with only garment assets and opt-in saved results on a persistent volume.</p></div>
+<div class="qa"><p class="q">A2. Why is the ML on the client rather than the server?</p><p class="a">Three reasons: privacy — the photo never leaves the device; cost — inference scales with visitors for free instead of per-request GPU billing; and offline capability, since the model is self-hosted. The trade-off is a ~6 MB one-time model download, cached by the browser.</p></div>
+<div class="qa"><p class="q">A3. Why Next.js instead of a React SPA + separate Express API?</p><p class="a">One codebase, one language, one deploy. Server components render data-driven pages next to the database instead of shipping JSON and rendering on the client, and API routes give me the backend without a second server. The standalone output mode also produces a minimal Docker image.</p></div>
+<div class="qa"><p class="q">A4. Which pages are server-rendered and which are client-side, and why?</p><p class="a">Data pages — home, product, account, orders — are dynamic server components because they read cookies or the database per request; I mark them force-dynamic so nothing stale is cached. The fitting studio, cart, checkout and admin are client components because they're interactive state machines. Login/register are static shells.</p></div>
+<div class="qa"><p class="q">A5. How do client and server share types?</p><p class="a">TypeScript all the way through — a Garment type used by the canvas engine is the same type the API serialises, and Prisma generates its model types from the schema. Zod schemas additionally give me runtime validation at the boundary, where compile-time types stop existing.</p></div>
+<div class="qa"><p class="q">A6. What's the hardest technical problem you solved?</p><p class="a">Making the garment sit convincingly on different bodies. Each garment stores its own anchor coordinates — shoulders and hems — taken from its drawing geometry, and the engine maps that quad onto the detected landmarks using shoulder span for scale and torso length with a per-garment length factor. Getting that stable without visual artefacts, across camera angles, took the most iteration.</p></div>
+<div class="qa"><p class="q">A7. Second hardest?</p><p class="a">Production runtime behaviour. Cookies marked Secure are silently dropped by browsers on plain HTTP — login worked locally and failed on the VPS until I made the Secure flag follow the actual request protocol from x-forwarded-propo. The same HTTPS rule blocks the camera API, so I added a native mobile camera capture fallback that works even over HTTP.</p></div>
+<div class="qa"><p class="q">A8. Why Canvas 2D and not WebGL?</p><p class="a">The render is one transformed bitmap over one photo — a 2D draw with image smoothing. WebGL or three.js would add a heavy dependency for no visual gain. If I were simulating fabric drape or lighting, WebGL becomes the right choice.</p></div>
+<div class="qa"><p class="q">A9. Where does business logic live?</p><p class="a">In the API routes and lib modules — pricing, stock checks, order creation, auth. The client renders state and can't bypass validation: quantity, size and stock are all re-checked server-side at checkout.</p></div>
+<div class="qa"><p class="q">A10. Is it real-time? What's the latency?</p><p class="a">Photo-to-fitted-result is about one second, all on-device: WASM inference plus a canvas draw. Fine-tune adjustments re-render within a frame because it's the same local bitmap transform.</p></div>
+
+<h2>B · Code &amp; implementation</h2>
+<div class="qa"><p class="q">B1. How does the pose detection actually work?</p><p class="a">MediaPipe's Pose Landmarker returns 33 normalised landmarks with visibility scores. I gate quality on the scores — shoulders must be visible; if hips score below 0.5 I estimate them from shoulder span using body proportions and label the result "hips estimated" so the user knows. Bad photos get actionable hints like "keep shoulders inside the frame".</p></div>
+<div class="qa"><p class="q">B2. Walk me through the fitting transform.</p><p class="a">The garment row stores normalised anchor points for both shoulders and both hems plus a length factor. I compute the user's shoulder span from the landmarks, derive the scale from the ratio of their span to the garment's anchor span, stretch vertically by torso length times the length factor, and add skew and rotation for perspective. The result is drawn with canvas transform onto the photo, and the user can fine-tune scale, offset, length and rotation.</p></div>
+<div class="qa"><p class="q">B3. How is state managed in the studio?</p><p class="a">Local React state plus refs — the canvas node, the detected landmarks, the selected garment and an Adjustments object. Adjustments are also mirrored into a ref so the AI command pipeline can read and patch them outside the render cycle.</p></div>
+<div class="qa"><p class="q">B4. How do you prevent overselling stock under concurrency?</p><p class="a">Inside a Prisma transaction, stock is decremented with a conditional updateMany — where id matches AND stock ≥ quantity. If the count of updated rows isn't exactly one, another request took the stock first, the transaction aborts and the client gets a 409 "stock changed" message. No read-then-write race.</p></div>
+<div class="qa"><p class="q">B5. How are uploads made safe?</p><p class="a">Client-side: type from a whitelist, size capped at 10 MB, downscaled to 1400 px and re-encoded — which also strips any embedded payload. Server-side, saved images are re-encoded again with sharp, stored under a generated session directory, and served back only through a route that whitelists resolved paths under the storage root, so directory traversal can't reach arbitrary files.</p></div>
+<div class="qa"><p class="q">B6. How does rate limiting work, and its limits?</p><p class="a">A small in-memory bucket keyed by client IP and route — e.g. 8 admin logins, 12 AI calls per minute. It's per-process, so with multiple replicas each instance would count separately; the next step would be a shared store like Redis. For this scale it's the right amount of engineering.</p></div>
+<div class="qa"><p class="q">B7. Why Zod when you already have TypeScript?</p><p class="a">TypeScript vanishes at runtime — fetch bodies are untrusted network input. Zod parses and constrains it at the boundary, rejects bad requests with clean messages, and infers the static type, so one schema covers both worlds.</p></div>
+<div class="qa"><p class="q">B8. What happens when the browser doesn't support WASM/SIMD?</p><p class="a">The MediaPipe package ships SIMD and non-SIMD builds and both are self-hosted, so older CPUs get the fallback build. If the model can't load at all, the UI explains it and the store part of the app keeps working — the try-on is a feature, not a dependency, of the storefront.</p></div>
+<div class="qa"><p class="q">B9. How did you handle mobile?</p><p class="a">Responsive Tailwind layouts; the studio reflows from three columns to a scrollable stack; the AI chat becomes a floating button with a bottom sheet; canvas drag uses pointer events with touch-action disabled; and photo capture offers the native camera input, which works even where live camera preview is blocked.</p></div>
+<div class="qa"><p class="q">B10. What did you automate in scripts?</p><p class="a">Seeding — SVG garments rasterised by sharp with anchors derived from the same coordinates; a catalog importer that upserts safely; end-to-end flow scripts (register → cart → order); a catalog validator and asset integrity checker; a cleanup sweeper for expired files; and a selftest endpoint.</p></div>
+
+<h2>C · Database</h2>
+<div class="qa"><p class="q">C1. Describe your schema.</p><p class="a">Five tables: User, Category, Product, Order, OrderItem. Product carries commerce fields plus fitting metadata — eight anchor coordinates, dimensions and a length factor. OrderItem snapshots the price at purchase. Uniques on user email and category name; foreign keys with deliberate cascade rules — order items cascade with their order, while users and products are restricted while referenced.</p></div>
+<div class="qa"><p class="q">C2. Why PostgreSQL over MongoDB?</p><p class="a">The data is inherently relational — orders reference users and products, and integrity matters (restrict rules prevent deleting a product with order history). Postgres gives constraints, transactions and joins; the few document-ish fields like style tags are stored as JSON text in columns because they're only ever displayed, never queried.</p></div>
+<div class="qa"><p class="q">C3. Why store JSON in TEXT columns — isn't that an anti-pattern?</p><p class="a">It would be, if I queried it. Styles, occasions and size lists are display-only, so a normalised table would cost joins for zero benefit. Anything filtered or aggregated — price, category, formality, stock — is a real column. PostgreSQL also has JSONB if these ever need querying; the boundary is deliberate.</p></div>
+<div class="qa"><p class="q">C4. Why Prisma over raw SQL or another ORM?</p><p class="a">Generated, type-safe queries from one schema file, readable migration story with db push, and portability — I moved from SQLite to Postgres by changing one provider line. Raw SQL would lose compile-time safety; heavier ORMs add ceremony this project doesn't need.</p></div>
+<div class="qa"><p class="q">C5. How do you handle database connections in serverless-ish environments?</p><p class="a">A singleton client per process cached on globalThis, and I connect through Supabase's session pooler, which multiplexes connections safely. The transaction-mode pooler would need pgbouncer workarounds for DDL, so the session pooler keeps schema sync and runtime on one URL.</p></div>
+<div class="qa"><p class="q">C6. How do migrations work?</p><p class="a">I use prisma db push: it diffs the schema against the live database and applies the change idempotently. It suits a solo project — the container literally runs it at boot and no-ops when in sync. For a team I'd switch to versioned migrations for reviewable, replayable history.</p></div>
+<div class="qa"><p class="q">C7. Why does OrderItem copy the price?</p><p class="a">Historical accuracy — if a product's price changes tomorrow, past orders must still show what was paid. The line item is an immutable record; the catalog is live data. Same reason I snapshot size too.</p></div>
+<div class="qa"><p class="q">C8. How would you find the top-selling products?</p><p class="a">Aggregate OrderItem grouped by productId with a sum of quantity, ordered descending, joined to Product for names — one Prisma groupBy or a short SQL query. It's not exposed in the admin UI yet; it's on the roadmap.</p></div>
+<div class="qa"><p class="q">C9. What indexes exist and why?</p><p class="a">Primary keys on all ids, plus unique indexes on user email (login lookup and duplicate prevention) and category name. Foreign keys are indexed by default in Postgres, which covers the order→user and item→product joins. For this data size that's sufficient; a search feature would add a trigram index on product name.</p></div>
+<div class="qa"><p class="q">C10. How is the database seeded and reset?</p><p class="a">A seed script draws the demo garments, rasterises them with sharp, writes catalog.json with anchors from the drawing coordinates, and an importer upserts products and categories — safe to rerun, stable IDs. In production, the container imports the catalog automatically when it finds an empty product table.</p></div>
+
+<h2>D · Security</h2>
+<div class="qa"><p class="q">D1. How are passwords stored?</p><p class="a">bcrypt with cost factor 12 — about a quarter second per hash, which is invisible to a user logging in but devastating to brute force. Verification uses the constant-time compare built into bcrypt.</p></div>
+<div class="qa"><p class="q">D2. Explain your session mechanism. Why not JWT?</p><p class="a">It's close to a JWT in spirit — a signed, stateless token: a base64 payload of user id, role and expiry, signed with HMAC-SHA256 using a server secret, stored in an httpOnly cookie. Compared to a standard JWT I skip the header and use symmetric signing only. The signature is verified with a timing-safe comparison, the expiry is checked, and the user is fetched from the database so deleted users lose access immediately.</p></div>
+<div class="qa"><p class="q">D3. How do you prevent XSS?</p><p class="a">React escapes all interpolated content by default; I never use dangerouslySetInnerHTML. The session cookie is httpOnly so even an injected script couldn't read it. Security headers — nosniff, frame-options, referrer policy — add another layer.</p></div>
+<div class="qa"><p class="q">D4. How do you prevent CSRF?</p><p class="a">Cookies are SameSite=Lax, so cross-origin sites can't trigger authenticated POSTs from the browser. State-changing endpoints are POST/PATCH/DELETE only, and there's no JSONP or wildcard CORS — the AI endpoint optionally restricts origins via an allowlist env var.</p></div>
+<div class="qa"><p class="q">D5. What about SQL injection?</p><p class="a">Prisma parameterises every query — user input is bound, never concatenated. Raw queries use the tagged template API which also binds parameters.</p></div>
+<div class="qa"><p class="q">D6. Path traversal?</p><p class="a">The asset route takes a catch-all path, resolves it, and only serves files that resolve inside the whitelisted storage directories. Anything escaping the root is rejected.</p></div>
+<div class="qa"><p class="q">D7. How is the admin area protected?</p><p class="a">A separate password from the environment, minimum length enforced, rate-limited to 8 attempts per minute with a constant-ish delay on failure. The cookie stores only an HMAC derived from the password — forgery without the secret is impractical — and every admin API route re-checks it server-side. There's no hidden client-side "protection"; the UI hiding is convenience, the API guard is the security.</p></div>
+<div class="qa"><p class="q">D8. What data does the server ever see of the user's body?</p><p class="a">Only what the user explicitly saves: an optional saved result image, TTL 24 hours and swept by the cleanup job. Detection and rendering happen locally; the AI assistant receives catalog data and chat text, never the photo.</p></div>
+
+<h2>E · AI / ML</h2>
+<div class="qa"><p class="q">E1. Which model, and why that one?</p><p class="a">MediaPipe Pose Landmarker Lite — the lightest of Google's pose models: ~6 MB, float16, designed for on-device CPU inference via WASM. Heavy models buy accuracy I don't need for shoulder-to-hip garment mapping, at the cost of download size and frame latency.</p></div>
+<div class="qa"><p class="q">E2. How does the AI assistant avoid doing something dangerous?</p><p class="a">The LLM doesn't return free-form actions — it must answer in a JSON schema that Zod validates against a fixed vocabulary: adjust fit, select garment, recommend, compare, explain. Those map to a typed apply() function that clamps values. Worst case from a hallucination is a wrong-but-safe adjustment; the model literally cannot express anything outside the UI's capabilities.</p></div>
+<div class="qa"><p class="q">E3. What if the LLM is down or the key is missing?</p><p class="a">A local rules engine handles the same intents deterministically — keyword matching for bigger, smaller, up, down, colours, occasions. The health endpoint reports which engine is active, and the badge in the chat shows it. Demos never break.</p></div>
+<div class="qa"><p class="q">E4. How would you improve the try-on realism?</p><p class="a">In order of cost: per-size garment variants and fabric opacity shading on the current geometry; segmentation masking so garments tuck behind arms using a body-segmentation model (also MediaPipe, also on-device); and full generative try-on with a diffusion model, which would force a server GPU and photo uploads — a privacy trade I'd make opt-in, not default.</p></div>
+<div class="qa"><p class="q">E5. What confidence thresholds do you use?</p><p class="a">Landmark visibility of 0.5 on hips — below that I impute from shoulder span and flag it; shoulders below threshold fail with guidance instead of producing a bad fit. The overall detection confidence is surfaced in the UI as a percentage.</p></div>
+
+<h2>F · Deployment, performance &amp; testing</h2>
+<div class="qa"><p class="q">F1. Describe your deployment pipeline.</p><p class="a">Push to GitHub → Dokploy on a Lightsail VPS builds the multi-stage Dockerfile → the entrypoint validates the database URL, seeds garment assets to the volume on first boot, syncs the Prisma schema, imports the demo catalog if the table is empty, and starts the standalone Next.js server behind Traefik with a Let's Encrypt certificate. Cloudflare handles DNS.</p></div>
+<div class="qa"><p class="q">F2. What happens on redeploy — is data lost?</p><p class="a">No. The database is managed by Supabase, outside the container. Garment assets and saved results live on a mounted volume at /data. The entrypoint only ever seeds when it finds empties, so redeploys are non-destructive.</p></div>
+<div class="qa"><p class="q">F3. How did you make the container robust?</p><p class="a">It self-heals: schema sync is idempotent, an empty or broken database gets re-seeded automatically, env values pasted with quotes are sanitised, and if the database can't initialise it fails loudly with instructions instead of serving a broken app. There's a health endpoint the platform polls.</p></div>
+<div class="qa"><p class="q">F4. What breaks first at scale, and what do you do?</p><p class="a">Because compute is client-side, the server only serves the app and catalog. Order: storage volume I/O — move assets to object storage like Supabase Storage or S3; then Postgres connections — the pooler plus a connection limit, then read replicas; then the Node process — horizontal replicas behind the proxy, which is also when rate limiting would move to Redis. None of these are architectural rewrites.</p></div>
+<div class="qa"><p class="q">F5. How did you test?</p><p class="a">Layered: Zod contract tests at the API boundary; end-to-end scripts driving register → cart → order flows against a running instance; a catalog validator and asset integrity checker; a selftest endpoint; and manual verification of the full Docker path, including deliberately breaking the database to prove auto-recovery.</p></div>
+<div class="qa"><p class="q">F6. What's not tested that you'd test with more time?</p><p class="a">Unit tests on the geometry maths with recorded landmark fixtures, cross-browser visual regression on the canvas output, and load testing the API. The fitting transform deserves golden-file tests since it's pure math — very testable.</p></div>
+<div class="qa"><p class="q">F7. What are the project's limitations?</p><p class="a">Honest list: no fabric drape simulation; fit is proportional, not size-predicting; the demo catalog is procedurally drawn rather than photographed garments; rate limiting is per-process; payments are simulated; and pose accuracy degrades with extreme camera angles — mitigated by the visibility gating and honest UX flags.</p></div>
+<div class="qa"><p class="q">F8. What would you do differently?</p><p class="a">Three things: versioned migrations from day one for reviewable history; unit tests on the transform math from the first commit; and structured logging with request ids — console logs were enough, but observability pays off the moment something breaks in production.</p></div>
+
+<h2>G · Product &amp; soft questions</h2>
+<div class="qa"><p class="q">G1. Who is this for?</p><p class="a">Small independent stores that can't afford enterprise try-on SaaS, plus privacy-conscious shoppers. The store gets a differentiating feature with no per-try-on cost; the shopper gets a better size decision without uploading their body to anyone.</p></div>
+<div class="qa"><p class="q">G2. How does it make money?</p><p class="a">As a project it doesn't — but as a product: a hosted version for small merchants per month, or self-hosted with a support tier. The unit economics work precisely because inference is free on the client.</p></div>
+<div class="qa"><p class="q">G3. What did you learn?</p><p class="a">That "works on my machine" fails at the boundary — real lessons were browser security rules (Secure cookies, HTTPS-only camera), proxy headers, database pooling, and designing fallbacks so a demo can never fully break. Also: keeping ML on the client turns a cost problem into a distribution feature.</p></div>
+
+<!-- ===================== 12 ===================== -->
+<h1>12 · Demo script &amp; cheat sheet</h1>
+<h2>Suggested 5-minute live demo (in this order)</h2>
+<ol>
+  <li><b>Storefront</b> (30 s) — home grid, open a product page, note price/fit/sizes.</li>
+  <li><b>Fitting room</b> (2 min) — upload/camera a photo → detection runs (point out it's local: no network tab activity!) → pick a garment → fine-tune sliders → before/after → compare two garments.</li>
+  <li><b>AI assistant</b> (1 min) — type "make it slightly oversized" → watch adjustment apply; ask "something casual for university" → recommendations as clickable chips.</li>
+  <li><b>Purchase loop</b> (1 min) — add to cart from the studio → register → checkout → orders page shows the order.</li>
+  <li><b>Admin</b> (30 s) — login, change the order status, show users/orders management.</li>
+</ol>
+<div class="callout">
+<b>Three mic-drop moments if asked "show me something clever":</b><br>
+1. Open DevTools → Network, reload the fitting room, process a photo — <b>zero photo upload requests</b>.<br>
+2. Delete the database rows (or ask about it) → container re-seeds itself on next boot.<br>
+3. Revoke the AI key (or go offline) → assistant still works via the local rules engine.
+</div>
+<h2>One-line definitions to memorise</h2>
+<ul>
+  <li><b>Anchor mapping:</b> fitting a garment by mapping its stored shoulder/hem coordinates onto the same landmarks detected on the user's body.</li>
+  <li><b>WASM:</b> WebAssembly — a binary instruction format that runs near-native speed in the browser; how MediaPipe executes on-device.</li>
+  <li><b>Stateless session:</b> authenticity proven by a signature over the data instead of a server-side session table.</li>
+  <li><b>Pooled connection:</b> many clients share a small set of database connections via a pooler, avoiding connection exhaustion.</li>
+  <li><b>Optimistic stock guard:</b> conditional decrement that fails safely if the row changed concurrently.</li>
+  <li><b>Zod validation:</b> runtime schema parsing of untrusted input at the API boundary.</li>
+</ul>
+
+<p class="small" style="margin-top:18px;">Generated for Rukaiya Sultana · Virtual Fit · 2026 — matches the codebase as of commit c42adb0. Live: https://vfit.rukaiya.tech · Repo: github.com/Rukaiya-Sultana/virtual-fit</p>
+
+</body>
+</html>
