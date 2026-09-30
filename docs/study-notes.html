@@ -239,6 +239,24 @@ OrderItem   id PK, orderId → Order (<b>Cascade</b>), productId → Product (Re
 <h2>5.4 Why Canvas 2D and not WebGL/three.js</h2>
 <p>We are compositing one transformed bitmap over one photo — a 2D affine-ish draw. WebGL would add a 3D engine dependency (~hundreds of kB) for zero visual gain here. If we later simulate drape or lighting, WebGL/WebGPU becomes the right tool.</p>
 
+<h2>5.5 Why not GPT-4o / Gemini image generation for the try-on?</h2>
+<p>Multimodal LLMs <i>can</i> generate a photorealistic try-on picture, so examiners will ask why we don't. The answer is primarily <b>economic</b>, and secondarily about privacy, latency and trust. This is the strongest business argument in the project — learn the table.</p>
+<table>
+  <tr><th></th><th>Generative API (GPT-4o/5 image, Gemini image, try-on SaaS)</th><th>Virtual Fit (on-device geometry)</th></tr>
+  <tr><td><b>Cost per try-on</b></td><td>~$0.02–$0.20 per generated image (2026 list pricing; try-on SaaS charges more)</td><td><b>$0.00</b> — runs on the shopper's own CPU</td></tr>
+  <tr><td><b>Cost at scale</b></td><td>1,000 try-ons/day ⇒ roughly <b>$600–$6,000/month</b>, growing linearly with success</td><td><b>$0</b> — flat ~$5–10/month VPS + free-tier DB at any volume</td></tr>
+  <tr><td><b>Cost structure</b></td><td>Pure <b>variable cost</b> — the more customers use it, the more you pay; marketing spikes = surprise bills</td><td><b>Zero marginal cost</b> — inference is delegated to hardware the customer already owns</td></tr>
+  <tr><td><b>Setup for an SME</b></td><td>API keys, billing account, rate limits, content-moderation review, vendor contract</td><td>One Docker container, no keys, no billing integration</td></tr>
+  <tr><td><b>Privacy / compliance</b></td><td>Body photo <b>uploaded to a third party</b> — GDPR/data-processing agreements, AI-training data policies</td><td>Photo <b>never leaves the browser</b>; nothing to disclose, nothing to leak</td></tr>
+  <tr><td><b>Latency</b></td><td>Upload photo + queue + generate + download ⇒ several seconds, needs internet</td><td>~1 second, local; works <b>offline</b> after first load</td></tr>
+  <tr><td><b>Trust / consistency</b></td><td>Generative models can subtly alter the face, body or garment colour — unacceptable when the question is "will <i>this</i> fit <i>me</i>?"</td><td>Deterministic: same body + same garment ⇒ identical fit, every time</td></tr>
+  <tr><td><b>Vendor risk</b></td><td>Provider can change price, model behaviour or deprecate endpoints overnight</td><td>Model file (~6 MB) is pinned in our repo — self-hosted, unchangeable by anyone else</td></tr>
+</table>
+<div class="callout">
+<b>The SME economics, spelled out (memorise this):</b> An SME's software cost = fixed + marginal. A generative API turns try-on into a <b>variable cost that scales with success</b> — every new customer using the feature eats into the very conversion gains it creates, and one viral day produces a surprise bill. Virtual Fit moves the inference to the customer's device — hardware they already own and paid for — so the store's <b>marginal cost per try-on is exactly zero</b>, and total platform cost stays flat (~$5–10/month) from the first customer to the ten-thousandth. No API key to leak, no per-image billing, no rate-limit outage during a campaign. For a small store with thin fashion-retail margins, that is the difference between a feature that pays for itself and one that becomes a liability.
+</div>
+<p><b>Where generative try-on <i>would</i> make sense:</b> as an optional, clearly-labelled premium tier ("photoreal preview") for shoppers who explicitly consent to uploading a photo — layered <i>on top of</i> the free default. The architecture supports adding it behind a flag later; the free, private, instant geometric fitting remains the baseline for everyone. We already apply this "LLM where it's cheap" principle: the project <b>does</b> use an LLM for the text assistant (free tier + local fallback) — i.e., exactly where it adds value at ~zero cost, and never where it bills per body.</p>
+
 <!-- ===================== 6 ===================== -->
 <h1>6 · Authentication &amp; sessions</h1>
 
@@ -392,6 +410,8 @@ runner   node:20-alpine + standalone server.js + prisma CLI for boot-time db pus
 <div class="qa"><p class="q">E3. What if the LLM is down or the key is missing?</p><p class="a">A local rules engine handles the same intents deterministically — keyword matching for bigger, smaller, up, down, colours, occasions. The health endpoint reports which engine is active, and the badge in the chat shows it. Demos never break.</p></div>
 <div class="qa"><p class="q">E4. How would you improve the try-on realism?</p><p class="a">In order of cost: per-size garment variants and fabric opacity shading on the current geometry; segmentation masking so garments tuck behind arms using a body-segmentation model (also MediaPipe, also on-device); and full generative try-on with a diffusion model, which would force a server GPU and photo uploads — a privacy trade I'd make opt-in, not default.</p></div>
 <div class="qa"><p class="q">E5. What confidence thresholds do you use?</p><p class="a">Landmark visibility of 0.5 on hips — below that I impute from shoulder span and flag it; shoulders below threshold fail with guidance instead of producing a bad fit. The overall detection confidence is surfaced in the UI as a percentage.</p></div>
+<div class="qa"><p class="q">E6. Why not use GPT-4o or Gemini for the try-on itself?</p><p class="a">They can generate a convincing try-on image — but they're the wrong default, especially for small businesses. First, economics: generative image APIs charge per image, a few cents each, so a store doing a thousand try-ons a day is paying hundreds to thousands of dollars a month, forever, and the bill grows linearly with the feature's success. My design runs inference on the shopper's own device — a 6 MB WASM model — so the store's marginal cost per try-on is exactly zero; the entire platform stays on a five-dollar VPS no matter the volume. Second, privacy: the body photo would be uploaded to a third-party cloud with all the GDPR and data-processing baggage that entails, while mine never leaves the browser. Third, latency and offline: seconds of round-trip versus about one second locally. Fourth, trust: a generative model can subtly change the person's face or the garment's colour — fatal when the question is "will this fit me" — whereas my geometric fit is deterministic and clamped. And note we're not anti-LLM: the text assistant does use one, on a free tier with a local fallback — the principle is "LLM where it's cheap, never where it bills per body."</p></div>
+<div class="qa"><p class="q">E7. So is a photorealistic try-on impossible in your approach?</p><p class="a">Not impossible — it's a deliberate trade for the default experience. The roadmap adds segmentation masking and shading for realism on-device, and a generative "photoreal preview" could be an opt-in premium tier where the user consciously uploads a photo. The key design point is that the free, private, instant path remains the baseline — generative features ride on top, they don't replace it.</p></div>
 
 <h2>F · Deployment, performance &amp; testing</h2>
 <div class="qa"><p class="q">F1. Describe your deployment pipeline.</p><p class="a">Push to GitHub → Dokploy on a Lightsail VPS builds the multi-stage Dockerfile → the entrypoint validates the database URL, seeds garment assets to the volume on first boot, syncs the Prisma schema, imports the demo catalog if the table is empty, and starts the standalone Next.js server behind Traefik with a Let's Encrypt certificate. Cloudflare handles DNS.</p></div>
@@ -422,7 +442,8 @@ runner   node:20-alpine + standalone server.js + prisma CLI for boot-time db pus
 <b>Three mic-drop moments if asked "show me something clever":</b><br>
 1. Open DevTools → Network, reload the fitting room, process a photo — <b>zero photo upload requests</b>.<br>
 2. Delete the database rows (or ask about it) → container re-seeds itself on next boot.<br>
-3. Revoke the AI key (or go offline) → assistant still works via the local rules engine.
+3. Revoke the AI key (or go offline) → assistant still works via the local rules engine.<br>
+4. Asked "why not GPT/Gemini?" → flip to the §5.5 cost table: <b>$0 marginal cost per try-on</b> vs $600–$6,000/month at scale.
 </div>
 <h2>One-line definitions to memorise</h2>
 <ul>
