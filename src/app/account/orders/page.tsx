@@ -1,0 +1,7 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { currentUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { formatPrice } from "@/lib/price";
+import { SiteFooter } from "@/components/shop/SiteHeader";
+export default async function OrdersPage() { const user = await currentUser(); if (!user) redirect("/login?next=/account/orders"); const orders = await prisma.order.findMany({ where: { userId: user.id }, include: { items: { include: { product: true } } }, orderBy: { createdAt: "desc" } }); return <div className="flex-1 flex flex-col"><main className="flex-1 mx-auto w-full max-w-3xl px-4 py-12"><p className="text-xs uppercase tracking-widest text-accent">Account</p><h1 className="mt-2 text-3xl font-semibold text-white">My orders</h1><div className="mt-8 space-y-3">{orders.length === 0 ? <p className="text-zinc-500">You have not placed an order yet.</p> : orders.map((order) => <Link key={order.id} href={`/order/${order.id}`} className="block rounded-xl border border-line bg-surface-raised p-5 hover:border-zinc-500"><div className="flex justify-between gap-4"><span className="text-zinc-200">Order {order.id}</span><span className="text-accent">{formatPrice(order.total)}</span></div><p className="mt-2 text-sm text-zinc-500">{order.items.map((item) => `${item.product.name} × ${item.quantity}`).join(", ")} · {order.createdAt.toLocaleDateString()}</p></Link>)}</div></main><SiteFooter /></div>; }

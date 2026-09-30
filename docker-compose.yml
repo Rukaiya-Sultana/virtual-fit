@@ -1,0 +1,24 @@
+services:
+  virtual-fit:
+    build:
+      context: .
+      args:
+        # Baked into the client bundle at build time:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-}
+        NEXT_PUBLIC_POSE_MODEL_URL: /models/pose_landmarker_lite.task
+    image: virtual-fit:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Required - generate with:  openssl rand -hex 32 / openssl rand -hex 24
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET in .env or the environment}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env or the environment}
+      # Optional AI assistant (app works without it):
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      # DATABASE_URL and STORAGE_ROOT default to /data inside the image.
+    volumes:
+      - vf-data:/data
+
+volumes:
+  vf-data:

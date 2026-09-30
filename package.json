@@ -1,0 +1,43 @@
+{
+  "name": "virtual-fit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser-based, body-aware virtual try-on platform with an AI fashion assistant",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "node scripts/postinstall.mjs",
+    "seed": "node scripts/seed-garments.mjs",
+    "db:seed": "node scripts/migrate-catalog-to-db.mjs",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "cleanup": "node scripts/cleanup.mjs"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "0.10.14",
+    "@prisma/client": "^5.22.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.2",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.3",
+    "clsx": "^2.1.1",
+    "next": "^14.2.35",
+    "prisma": "^5.22.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "sharp": "^0.33.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
+    "puppeteer-core": "^23.11.1",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5.5.4"
+  }
+}

@@ -1,0 +1,26 @@
+[Unit]
+Description=Virtual Fit — AI-powered virtual try-on platform
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/virtual-fit
+EnvironmentFile=/var/www/virtual-fit/.env
+Environment=NODE_ENV=production
+Environment=PORT=3000
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/virtual-fit/app.log
+StandardError=append:/var/log/virtual-fit/error.log
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/data/virtual-fit /var/www/virtual-fit/.next /var/log/virtual-fit
+
+[Install]
+WantedBy=multi-user.target
