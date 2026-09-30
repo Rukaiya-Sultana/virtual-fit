@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Virtual Fit — Pitch Deck</title>
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0b0c0e; --panel: #14161a; --panel2: #191c21; --line: #26282e;
+    --text: #e7e9ec; --muted: #9aa0a8; --dim: #6b7280;
+    --accent: #c9f24d; --accent-dim: #a8d12e; --blue: #7ea2ff;
+  }
+  body { font-family: "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--text); }
+  .slide { width: 1280px; height: 720px; padding: 56px 72px; page-break-after: always; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .slide:last-child { page-break-after: auto; }
+  .kicker { font-size: 13px; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 14px; }
+  h1 { font-size: 64px; font-weight: 700; line-height: 1.08; }
+  h2 { font-size: 40px; font-weight: 700; margin-bottom: 8px; }
+  .sub { font-size: 20px; color: var(--muted); line-height: 1.5; }
+  .footer { position: absolute; bottom: 28px; left: 72px; right: 72px; display: flex; justify-content: space-between; font-size: 12px; color: var(--dim); letter-spacing: .08em; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); margin-right: 8px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+  .grid4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+  ul { list-style: none; }
+  li { padding-left: 20px; position: relative; margin-bottom: 10px; font-size: 16.5px; color: var(--muted); line-height: 1.45; }
+  li::before { content: ""; position: absolute; left: 0; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  li b, p b { color: var(--text); }
+  .accent { color: var(--accent); }
+  .badge { display: inline-block; border: 1px solid var(--line); background: var(--panel2); border-radius: 999px; padding: 5px 14px; font-size: 13px; color: var(--muted); margin: 4px 6px 0 0; }
+  .step { display: flex; gap: 14px; align-items: flex-start; }
+  .stepnum { flex: 0 0 34px; height: 34px; border-radius: 50%; background: var(--accent); color: #0b0c0e; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .faq { border-left: 3px solid var(--accent); padding: 8px 0 8px 16px; margin-bottom: 14px; }
+  .faq .q { font-size: 16.5px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .faq .a { font-size: 14.5px; color: var(--muted); line-height: 1.45; }
+  .big { font-size: 54px; font-weight: 700; color: var(--accent); }
+  .lbl { font-size: 13px; color: var(--dim); letter-spacing: .1em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<!-- 1 · TITLE -->
+<section class="slide" style="justify-content:center;">
+  <div style="position:absolute; top:-180px; right:-180px; width:560px; height:560px; border-radius:50%; background:radial-gradient(circle, rgba(201,242,77,.10), transparent 65%);"></div>
+  <div style="position:absolute; bottom:-220px; left:-160px; width:520px; height:520px; border-radius:50%; background:radial-gradient(circle, rgba(126,162,255,.08), transparent 65%);"></div>
+  <div class="kicker">Final year project · 2026</div>
+  <h1>Virtual&nbsp;Fit<span class="accent">.</span></h1>
+  <p class="sub" style="font-size:26px; margin-top:16px;">Try it on before you buy it — a browser-based,<br>body-aware virtual fitting room.</p>
+  <div style="margin-top:34px;">
+    <span class="badge">100% in-browser body detection</span>
+    <span class="badge">AI fashion assistant</span>
+    <span class="badge">Full storefront + admin</span>
+    <span class="badge">Privacy-first</span>
+  </div>
+  <div class="footer"><span>Rukaiya Sultana · rukaiyam70@gmail.com</span><span>virtual-fit · vfit.rukaiya.tech</span></div>
+</section>
+
+<!-- 2 · PROBLEM -->
+<section class="slide">
+  <div class="kicker">The problem</div>
+  <h2>Clothes shopping online is a guess.</h2>
+  <div class="grid3" style="margin-top:30px;">
+    <div class="card"><div class="big">30–40%</div><p class="sub" style="font-size:15.5px; margin-top:8px;">of online apparel is returned — <b style="color:var(--text)">fit and sizing are the #1 reason</b>.</p></div>
+    <div class="card"><div class="big">Inconsistent</div><p class="sub" style="font-size:15.5px; margin-top:8px;">sizes across brands make charts useless — a "M" differs everywhere.</p></div>
+    <div class="card"><div class="big">Existing tools</div><p class="sub" style="font-size:15.5px; margin-top:8px;">need server-side ML pipelines, GPUs, or send your <b style="color:var(--text)">photos to the cloud</b>.</p></div>
+  </div>
+  <div class="card" style="margin-top:20px; border-color: rgba(201,242,77,.4);">
+    <p class="sub" style="font-size:17px;"><span class="accent" style="font-weight:600;">→</span>&nbsp; Small stores can't afford try-on tech, and shoppers can't verify fit <b style="color:var(--text)">before</b> checkout.</p>
+  </div>
+  <div class="footer"><span>Virtual Fit</span><span>02</span></div>
+</section>
+
+<!-- 3 · SOLUTION -->
+<section class="slide">
+  <div class="kicker">The solution</div>
+  <h2>A fitting room that lives in the browser tab.</h2>
+  <div class="grid2" style="margin-top:28px; flex:1;">
+    <div class="card">
+      <p class="lbl" style="margin-bottom:10px;">What the shopper does</p>
+      <ul>
+        <li>Uploads or snaps <b>one photo</b> (shoulders to hips)</li>
+        <li>Picks a garment from the live catalog</li>
+        <li>Sees it fitted to <b>their body instantly</b></li>
+        <li>Fine-tunes scale, offset, length, rotation</li>
+        <li>Compares pieces side-by-side, adds to cart</li>
+      </ul>
+    </div>
+    <div class="card">
+      <p class="lbl" style="margin-bottom:10px;">What makes it different</p>
+      <ul>
+        <li>Pose detection runs <b>on-device</b> (WebAssembly) — photos never leave the browser for processing</li>
+        <li>No GPU, no ML servers — runs on a <b>$5 VPS</b></li>
+        <li>Plain-language AI assistant: <i>"make it slightly oversized"</i></li>
+        <li>Complete e-commerce loop: accounts, cart, orders, admin</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>Virtual Fit</span><span>03</span></div>
+</section>
+
+<!-- 4 · HOW IT WORKS -->
+<section class="slide">
+  <div class="kicker">How it works</div>
+  <h2>From photo to fitted — in one second, client-side.</h2>
+  <div style="display:flex; flex-direction:column; gap:16px; margin-top:30px;">
+    <div class="step"><div class="stepnum">1</div><div><b style="font-size:17px;">Photo intake</b><p class="sub" style="font-size:15px;">Upload, drag-drop, live camera (with timer) or native mobile camera. Re-encoded &amp; downscaled to ≤1400px in the browser.</p></div></div>
+    <div class="step"><div class="stepnum">2</div><div><b style="font-size:17px;">Body landmark detection</b><p class="sub" style="font-size:15px;">MediaPipe Pose Landmarker (33 landmarks) via self-hosted WASM — shoulders, hips, torso visibility scored for confidence.</p></div></div>
+    <div class="step"><div class="stepnum">3</div><div><b style="font-size:17px;">Anchor-based garment mapping</b><p class="sub" style="font-size:15px;">Each garment ships with exact anchor geometry (shoulder &amp; hem points). A geometric engine scales, skews and rotates it onto the detected torso.</p></div></div>
+    <div class="step"><div class="stepnum">4</div><div><b style="font-size:17px;">Interactive composite</b><p class="sub" style="font-size:15px;">Canvas rendering with zoom/pan, before/after toggle, skeleton overlay, save or download — all without another server round-trip.</p></div></div>
+  </div>
+  <div class="footer"><span>Virtual Fit</span><span>04</span></div>
+</section>
+
+<!-- 5 · FEATURES -->
+<section class="slide">
+  <div class="kicker">Feature tour</div>
+  <h2>More than a demo — a working store.</h2>
+  <div class="grid4" style="margin-top:26px;">
+    <div class="card"><p class="lbl">Fitting room</p><ul style="margin-top:10px;"><li style="font-size:14px;">Body-aware fitting</li><li style="font-size:14px;">Fine-tune sliders</li><li style="font-size:14px;">Before / after</li><li style="font-size:14px;">Compare 2 garments</li></ul></div>
+    <div class="card"><p class="lbl">Assistant</p><ul style="margin-top:10px;"><li style="font-size:14px;">Plain-language fit edits</li><li style="font-size:14px;">Occasion styling</li><li style="font-size:14px;">Recommends garments</li><li style="font-size:14px;">Works with no API key</li></ul></div>
+    <div class="card"><p class="lbl">Storefront</p><ul style="margin-top:10px;"><li style="font-size:14px;">Catalog + product pages</li><li style="font-size:14px;">Cart drawer</li><li style="font-size:14px;">Checkout + orders</li><li style="font-size:14px;">Accounts &amp; history</li></ul></div>
+    <div class="card"><p class="lbl">Admin</p><ul style="margin-top:10px;"><li style="font-size:14px;">Garment uploads</li><li style="font-size:14px;">Categories &amp; orders</li><li style="font-size:14px;">User management</li><li style="font-size:14px;">Status workflow</li></ul></div>
+  </div>
+  <div class="card" style="margin-top:18px;"><p class="sub" style="font-size:15.5px;"><span class="accent" style="font-weight:600;">Demo catalog:</span> 15 procedurally-drawn garments across 6 categories — each with per-garment anchor metadata generated from its drawing geometry, so fitting is pixel-accurate.</p></div>
+  <div class="footer"><span>Virtual Fit</span><span>05</span></div>
+</section>
+
+<!-- 6 · AI ASSISTANT -->
+<section class="slide">
+  <div class="kicker">AI fashion assistant</div>
+  <h2>Talk to your wardrobe.</h2>
+  <div class="grid2" style="margin-top:26px; flex:1;">
+    <div class="card">
+      <p class="lbl" style="margin-bottom:10px;">What it understands</p>
+      <ul>
+        <li><b>"Make it slightly oversized"</b> → widens scale ±</li>
+        <li><b>"Something casual for university"</b> → filters by occasion &amp; formality</li>
+        <li><b>"Compare the shirt and the jacket"</b> → opens comparison</li>
+        <li><b>"Why is this more formal?"</b> → explains catalog metadata</li>
+      </ul>
+    </div>
+    <div class="card">
+      <p class="lbl" style="margin-bottom:10px;">Dual-engine design</p>
+      <ul>
+        <li><b>LLM path</b> — OpenRouter (free-tier model) returns structured JSON commands validated with Zod</li>
+        <li><b>Local rules engine</b> — deterministic NLU fallback when no key / offline; the app never loses the feature</li>
+        <li>Commands map to a typed <b>apply()</b> pipeline — the model can only do what the UI allows</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>Virtual Fit</span><span>06</span></div>
+</section>
+
+<!-- 7 · ARCHITECTURE -->
+<section class="slide">
+  <div class="kicker">Architecture &amp; stack</div>
+  <h2>Boring where it should be, clever where it counts.</h2>
+  <div class="grid3" style="margin-top:26px;">
+    <div class="card"><p class="lbl" style="margin-bottom:10px;">Frontend</p><ul><li style="font-size:14px;">Next.js 14 (App Router, standalone)</li><li style="font-size:14px;">React 18 server components</li><li style="font-size:14px;">Tailwind CSS, responsive + mobile chat sheet</li><li style="font-size:14px;">Canvas 2D fitting engine</li></ul></div>
+    <div class="card"><p class="lbl" style="margin-bottom:10px;">On-device ML</p><ul><li style="font-size:14px;">MediaPipe Tasks Vision (WASM)</li><li style="font-size:14px;">Pose Landmarker Lite (~6&nbsp;MB, self-hosted)</li><li style="font-size:14px;">SIMD + no-SIMD builds shipped</li><li style="font-size:14px;">Zero third-party CDN dependency</li></ul></div>
+    <div class="card"><p class="lbl" style="margin-bottom:10px;">Backend &amp; data</p><ul><li style="font-size:14px;">API routes with Zod validation</li><li style="font-size:14px;">Prisma ORM → Supabase Postgres</li><li style="font-size:14px;">sharp asset pipeline (WebP)</li><li style="font-size:14px;">Docker → Dokploy on AWS Lightsail</li></ul></div>
+  </div>
+  <div class="card" style="margin-top:18px;"><p class="sub" style="font-size:15px;"><b style="color:var(--text)">Data model:</b> User · Category · Product (with anchor metadata) · Order · OrderItem — 5 tables, fully relational with FK constraints.</p></div>
+  <div class="footer"><span>Virtual Fit</span><span>07</span></div>
+</section>
+
+<!-- 8 · PRIVACY -->
+<section class="slide">
+  <div class="kicker">Privacy by design</div>
+  <h2>Your body, your device.</h2>
+  <div class="grid2" style="margin-top:28px; flex:1;">
+    <div class="card">
+      <ul>
+        <li><b>Pose detection runs in the browser</b> — WASM on the user's CPU, not a GPU cluster</li>
+        <li>Photos are <b>never uploaded for processing</b></li>
+        <li>Saved results are opt-in and <b>auto-expire</b> (24h default) via a cleanup sweeper</li>
+        <li>Upload validation: type, size (10&nbsp;MB), dimension caps, rate limits</li>
+      </ul>
+    </div>
+    <div class="card">
+      <ul>
+        <li><b>bcrypt (cost 12)</b> password hashing</li>
+        <li><b>HMAC-SHA256 signed</b>, httpOnly, SameSite=Lax session cookies — protocol-aware Secure flag</li>
+        <li>Admin gate on a separate signed cookie; all admin APIs guarded</li>
+        <li>Zod schema validation on every endpoint; asset paths whitelisted (no traversal)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>Virtual Fit</span><span>08</span></div>
+</section>
+
+<!-- 9 · PERFORMANCE -->
+<section class="slide">
+  <div class="kicker">Performance &amp; cost</div>
+  <h2>Featherweight on purpose.</h2>
+  <div class="grid4" style="margin-top:30px;">
+    <div class="card" style="text-align:center;"><div class="big" style="font-size:42px;">&lt;110kB</div><p class="sub" style="font-size:14px; margin-top:6px;">first-load JS per route</p></div>
+    <div class="card" style="text-align:center;"><div class="big" style="font-size:42px;">~1s</div><p class="sub" style="font-size:14px; margin-top:6px;">photo → fitted result (on-device)</p></div>
+    <div class="card" style="text-align:center;"><div class="big" style="font-size:42px;">512MB</div><p class="sub" style="font-size:14px; margin-top:6px;">VPS runs the whole stack</p></div>
+    <div class="card" style="text-align:center;"><div class="big" style="font-size:42px;">$0</div><p class="sub" style="font-size:14px; margin-top:6px;">AI cost — free-tier LLM + local fallback</p></div>
+  </div>
+  <div class="card" style="margin-top:22px;">
+    <p class="sub" style="font-size:15.5px;"><b style="color:var(--text)">Ops:</b> Docker image self-heals — schema sync on boot, seeded demo catalog, persistent asset volume, health endpoint + container healthcheck. Deploys are one click via Dokploy.</p>
+  </div>
+  <div class="footer"><span>Virtual Fit</span><span>09</span></div>
+</section>
+
+<!-- 10 · ROADMAP -->
+<section class="slide">
+  <div class="kicker">Roadmap</div>
+  <h2>Where this goes next.</h2>
+  <div class="grid2" style="margin-top:30px; flex:1;">
+    <div class="card">
+      <p class="lbl" style="margin-bottom:10px;">Product</p>
+      <ul>
+        <li>Real garment photography via admin uploads</li>
+        <li>Multi-layer outfits (shirt + jacket stacks)</li>
+        <li>Size recommendation from detected proportions</li>
+        <li>Live AR try-on via <code>getUserMedia</code> loop</li>
+      </ul>
+    </div>
+    <div class="card">
+      <p class="lbl" style="margin-bottom:10px;">Platform</p>
+      <ul>
+        <li>Supabase Auth (Google login) alongside cookie auth</li>
+        <li>Supabase Storage for garment assets</li>
+        <li>Payments (Stripe test mode)</li>
+        <li>i18n + accessibility audit pass</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>Virtual Fit</span><span>10</span></div>
+</section>
+
+<!-- 11 · FAQ 1 -->
+<section class="slide">
+  <div class="kicker">FAQ · technical</div>
+  <h2>Questions you might ask.</h2>
+  <div style="margin-top:22px; column-count:2; column-gap:28px;">
+    <div class="faq"><p class="q">Why geometric fitting instead of a generative ML try-on?</p><p class="a">Garment-accurate generative try-on needs diffusion models, GPUs, and sends photos to servers — the opposite of this project's privacy goal. Anchor-based geometry is deterministic, instant, explainable, and runs offline. It's a deliberate trade: realism vs. privacy + cost.</p></div>
+    <div class="faq"><p class="q">How accurate is the fit, honestly?</p><p class="a">It maps 4 anchors (both shoulders, both hems) onto detected landmarks with per-garment length/width factors, then lets the user fine-tune. It reproduces proportions faithfully (shoulder span, torso length) but does not simulate fabric drape — stated openly as a limitation.</p></div>
+    <div class="faq"><p class="q">Where does pose detection run, and with what model?</p><p class="a">MediaPipe Pose Landmarker Lite (float16, ~6MB), executed as WebAssembly on the user's CPU. The model and WASM runtime are self-hosted in /public — no CDN, works offline after first load. A confidence score gates bad photos with actionable hints.</p></div>
+    <div class="faq"><p class="q">Why SQLite first, then Supabase Postgres?</p><p class="a">SQLite gave zero-setup local development. Supabase (managed Postgres) adds concurrent writes, daily backups, and a dashboard for the deployed app. Prisma kept all query code identical — only the datasource changed.</p></div>
+    <div class="faq"><p class="q">Why custom auth instead of NextAuth / OAuth?</p><p class="a">The requirement was a self-contained system demonstrating the full flow: bcrypt hashing, HMAC-signed httpOnly cookies, sessions, role gating. Supabase Auth is on the roadmap as an additional provider.</p></div>
+    <div class="faq"><p class="q">How does the AI assistant stay safe / functional without an API key?</p><p class="a">LLM output is constrained to a Zod-validated JSON command schema applied through a typed pipeline — the model can only trigger actions the UI already allows. With no key, a deterministic local NLU handles the same intents, so demos never break.</p></div>
+  </div>
+  <div class="footer"><span>Virtual Fit</span><span>11</span></div>
+</section>
+
+<!-- 12 · FAQ 2 -->
+<section class="slide">
+  <div class="kicker">FAQ · product &amp; process</div>
+  <h2>Questions you might ask. (cont.)</h2>
+  <div style="margin-top:22px; column-count:2; column-gap:28px;">
+    <div class="faq"><p class="q">What happens to user photos?</p><p class="a">Processing is 100% client-side. A photo reaches the server only when the user explicitly saves a result — stored with a 24h TTL and swept by a retention job. Camera access requires HTTPS; uploads are type/size/rate limited.</p></div>
+    <div class="faq"><p class="q">How would it scale to real traffic?</p><p class="a">The heavy compute is in each visitor's browser, so the server only serves the app + catalog. Bottleneck order: asset volume I/O → Postgres pool → node process. Fixes: object storage for assets, pgbouncer pooling, horizontal replicas behind the proxy — all standard.</p></div>
+    <div class="faq"><p class="q">What was the hardest engineering problem?</p><p class="a">Making anchor geometry look right across bodies: deriving per-garment hem/shoulder anchors from drawing coordinates, then composing scale, skew and rotation without visible artifacts. Runner-up: production runtime behavior — cookies and camera APIs over plain HTTP vs HTTPS.</p></div>
+    <div class="faq"><p class="q">How was it tested?</p><p class="a">Zod-validated API contracts, e2e scripts (scripts/e2e-*.mjs) covering register → cart → order flows, a /api/dev/selftest endpoint, catalog validation and asset integrity scripts, plus live end-to-end verification of the Docker deployment path.</p></div>
+    <div class="faq"><p class="q">What did it cost to build and run?</p><p class="a">Build: $0 (all open-source). Run: a ~$5–10/mo Lightsail VPS + Supabase free tier + optional free OpenRouter key. No paid services are required.</p></div>
+    <div class="faq"><p class="q">What's fake vs. real in the demo?</p><p class="a">Real: accounts, sessions, catalog CRUD, cart, orders, admin, fitting engine, assistant. Simulated by design: payment at checkout and shipping — clearly labelled, since handling real money wasn't in scope.</p></div>
+  </div>
+  <div class="footer"><span>Virtual Fit</span><span>12</span></div>
+</section>
+
+<!-- 13 · CLOSING -->
+<section class="slide" style="justify-content:center; align-items:center; text-align:center;">
+  <div style="position:absolute; top:-160px; left:50%; transform:translateX(-50%); width:700px; height:700px; border-radius:50%; background:radial-gradient(circle, rgba(201,242,77,.10), transparent 60%);"></div>
+  <div class="kicker">Thank you</div>
+  <h1 style="font-size:56px;">See it on your body,<br><span class="accent">not on a mannequin.</span></h1>
+  <p class="sub" style="margin-top:22px; font-size:20px;">Live demo · vfit.rukaiya.tech &nbsp;·&nbsp; Source · github.com/Rukaiya-Sultana/virtual-fit</p>
+  <div style="margin-top:30px;">
+    <span class="badge">Rukaiya Sultana</span>
+    <span class="badge">rukaiyam70@gmail.com</span>
+    <span class="badge">2026</span>
+  </div>
+  <div class="footer"><span>Virtual Fit</span><span>13</span></div>
+</section>
+
+</body>
+</html>
